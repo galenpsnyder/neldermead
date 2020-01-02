@@ -36,6 +36,7 @@ nelder.mead <- function(parm, objective, lower = NULL, upper = NULL, tol = sqrt(
   parm[, 1:n] <- matrix(rep(parm.vec, n + 1),        # all rows of parameter matrix gets initial parameters
                         nrow =  n + 1, byrow = T)    # note that the last column is left empty for objective function evaluations
   
+  # initializing simplex
   for(i in 2:(n + 1)){
     if(parm[1, (i - 1)] != 0){
       parm[i, (i - 1)] <- parm[1, (i - 1)] + (parm[1, (i - 1)] * 0.05)
@@ -44,11 +45,13 @@ nelder.mead <- function(parm, objective, lower = NULL, upper = NULL, tol = sqrt(
     }
   }
   
+  # initializing node values
   for(i in 1:(n + 1)){
     parm[i, (n + 1)] <- objective(parm[i, 1:n], ...)
   }
   parm <- parm[order(parm[ ,(n + 1)]), ]
   
+  # main loop
   while(s > tol){
     # estimating centroid of vertices less the worst fitting vertex
     x.m <- vector(mode = "numeric", length = n)
@@ -119,7 +122,7 @@ nelder.mead <- function(parm, objective, lower = NULL, upper = NULL, tol = sqrt(
     s <- 2 * ((parm[(n + 1), (n + 1)] - parm[1, (n + 1)]) / (parm[(n + 1), (n + 1)] + parm[1, (n + 1)] + tol))
   }
   if(hessian){
-    ## estimating hessian via quadratic surface approximation (e.g., Nelder & Mead, 1965)
+    ## estimating hessian via quadratic surface approximation (see Nelder & Mead, 1965)
     # create empty matrix 'H' and fill columns with values from best fitting simplex node
     # then coerce jitter between points
     H <- matrix(0, nrow = n+1, ncol = n+1)
